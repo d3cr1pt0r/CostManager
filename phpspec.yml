@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: CostManager
+        psr4_prefix: CostManager
+        src_path: app
