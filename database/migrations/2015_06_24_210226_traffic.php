@@ -17,6 +17,7 @@ class Traffic extends Migration
             $table->integer('traffic_type_id')->unsigned();
             $table->decimal('amount', 5, 2);
             $table->timestamp('created_at');
+            $table->timestamp('updated_at');
         });
 
         Schema::table('traffic', function($table) {

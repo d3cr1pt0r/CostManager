@@ -11,4 +11,5 @@
 |
 */
 
+Route::controller('ajax', 'AjaxController');
 Route::controller('/', 'TrafficController');

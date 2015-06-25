@@ -63,13 +63,13 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
-                                        <input type="text" class="form-control" id="name" placeholder="Sticker foil, Gasoline, ...">
+                                        <input type="text" class="form-control name-profit-ac" name="name" data-provide="typeahead" autocomplete="off" data-source="one, two, three" placeholder="Sticker foil, Gasoline, ...">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">$</div>
-                                        <input type="text" class="form-control" id="amount" placeholder="Amount">
+                                        <input type="text" class="form-control" name="amount" placeholder="Amount">
                                     </div>
                                 </div>
                                 <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
@@ -88,13 +88,13 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
-                                        <input type="text" class="form-control" id="name" placeholder="Sticker foil, Gasoline, ...">
+                                        <input type="text" class="form-control" name="name" placeholder="Sticker foil, Gasoline, ...">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">$</div>
-                                        <input type="text" class="form-control" id="amount" placeholder="Amount">
+                                        <input type="text" class="form-control" name="amount" placeholder="Amount">
                                     </div>
                                 </div>
                                 <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
@@ -110,30 +110,26 @@
                     <table class="table table-condensed">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Amount</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
+                            <tr class="danger">
+                                <th>Sticker foil</th>
+                                <td>20.10.1990</td>
+                                <td>100.00 €</td>
                             </tr>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
+                            <tr class="danger">
+                                <th>Sticker foil</th>
+                                <td>21.10.1990</td>
+                                <td>30.00 €</td>
                             </tr>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
+                            <tr class="success">
+                                <th>Payment</th>
+                                <td>22.10.1990</td>
+                                <td>250.00 €</td>
                             </tr>
                         </tbody>
                     </table>
@@ -146,5 +142,15 @@
 
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+        <!-- Bootstrap 3 autocomplete -->
+        <script src="{{ URL::asset('assets/js/bootstrap3-autocomplete.js') }}"></script>
+
+        <script>
+            $.get("ajax/traffic-types", function( data ) {
+                data = JSON.parse(data);
+                $(".name-profit-ac").typeahead({ source: data });
+            });
+        </script>
     </body>
 </html>
