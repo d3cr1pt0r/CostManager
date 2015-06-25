@@ -8,8 +8,8 @@ class Traffic extends Model
 {
     protected $table = 'traffic';
 
-    public function type()
+    public function trafficType()
     {
-        return $this->hasOne('Traffic');
+        return $this->belongsTo('CostManager\TrafficType', 'traffic_type_id');
     }
 }

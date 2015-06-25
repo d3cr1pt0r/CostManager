@@ -17,6 +17,8 @@ class TrafficType extends Migration
             $table->string('name');
             $table->string('desc');
             $table->boolean('is_cost');
+            $table->timestamp('created_at');
+            $table->timestamp('updated_at');
         });
     }
 

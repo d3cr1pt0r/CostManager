@@ -34,6 +34,13 @@
               <a class="navbar-brand" href="#">CostManager</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                @if ($balance >= 0)
+                    <li><a href="#">Balance: <span style="color: #5cb85c;">{{ $balance }}€</span></a></li>
+                @else
+                    <li><a href="#">Balance: <span style="color: #d9534f;">{{ $balance }}€</span></a></li>
+                @endif
+              </ul>
               <ul class="nav navbar-nav navbar-right">
                 <li><a href="../navbar-fixed-top/">All</a></li>
                 <li><a href="../navbar/">Costs</a></li>
@@ -63,7 +70,7 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
-                                        <input type="text" class="form-control name-profit-ac" name="name" data-provide="typeahead" autocomplete="off" data-source="one, two, three" placeholder="Sticker foil, Gasoline, ...">
+                                        <input type="text" class="form-control name-profit-ac" name="name" data-provide="typeahead" autocomplete="off" placeholder="Payment, ...">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -88,7 +95,7 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
-                                        <input type="text" class="form-control" name="name" placeholder="Sticker foil, Gasoline, ...">
+                                        <input type="text" class="form-control name-expense-ac" name="name" data-provide="typeahead" autocomplete="off" placeholder="Sticker foil, Gasoline, ...">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -113,24 +120,27 @@
                                 <th>Name</th>
                                 <th>Date</th>
                                 <th>Amount</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="danger">
-                                <th>Sticker foil</th>
-                                <td>20.10.1990</td>
-                                <td>100.00 €</td>
-                            </tr>
-                            <tr class="danger">
-                                <th>Sticker foil</th>
-                                <td>21.10.1990</td>
-                                <td>30.00 €</td>
-                            </tr>
-                            <tr class="success">
-                                <th>Payment</th>
-                                <td>22.10.1990</td>
-                                <td>250.00 €</td>
-                            </tr>
+                            @foreach ($traffic as $t)
+                                @if ($t->trafficType->is_cost == 1)
+                                    <tr class="danger">
+                                        <th>{{ $t->trafficType->name }}</th>
+                                        <td>{{ $t->created_at }}</td>
+                                        <td>{{ $t->amount }}</td>
+                                        <td><a href="remove-traffic/{{ $t->id }}">Delete</a></td>
+                                    </tr>
+                                @else
+                                    <tr class="success">
+                                        <th>{{ $t->trafficType->name }}</th>
+                                        <td>{{ $t->created_at }}</td>
+                                        <td>{{ $t->amount }}</td>
+                                        <td><a href="remove-traffic/{{ $t->id }}">Delete</a></td>
+                                    </tr>
+                                @endif
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -147,9 +157,14 @@
         <script src="{{ URL::asset('assets/js/bootstrap3-autocomplete.js') }}"></script>
 
         <script>
-            $.get("ajax/traffic-types", function( data ) {
+            $.get("ajax/traffic-types-profit", function( data ) {
                 data = JSON.parse(data);
+                console.log(data);
                 $(".name-profit-ac").typeahead({ source: data });
+            });
+            $.get("ajax/traffic-types-expense", function( data ) {
+                data = JSON.parse(data);
+                $(".name-expense-ac").typeahead({ source: data });
             });
         </script>
     </body>
