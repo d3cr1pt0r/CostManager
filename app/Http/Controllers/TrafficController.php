@@ -14,7 +14,7 @@ class TrafficController extends Controller
 {
     public function getIndex()
     {
-        $traffic = Traffic::all();
+        $traffic = Traffic::orderBy('created_at', 'desc')->get();
         $traffic_types = TrafficType::all();
 
         $view = view('welcome');

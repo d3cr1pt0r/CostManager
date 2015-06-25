@@ -13,3 +13,8 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+#AuthType Basic
+#AuthName "Password Protected Area"
+#AuthUserFile D:/Program Files/wamp2/www/cost_manager/public/.htpasswd
+#Require valid-user

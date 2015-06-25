@@ -31,16 +31,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">CostManager</a>
+              @if ($balance >= 0)
+                <a class="navbar-brand" href="#">Balance: <span style="color: #5cb85c; font-size: 18px;">{{ $balance }}€</span></a>
+              @else
+                <a class="navbar-brand" href="#">Balance: <span style="color: #d9534f; font-size: 18px;">{{ $balance }}€</span></a>
+              @endif
             </div>
             <div id="navbar" class="navbar-collapse collapse">
-              <ul class="nav navbar-nav">
-                @if ($balance >= 0)
-                    <li><a href="#">Balance: <span style="color: #5cb85c;">{{ $balance }}€</span></a></li>
-                @else
-                    <li><a href="#">Balance: <span style="color: #d9534f;">{{ $balance }}€</span></a></li>
-                @endif
-              </ul>
               <ul class="nav navbar-nav navbar-right">
                 <li><a href="../navbar-fixed-top/">All</a></li>
                 <li><a href="../navbar/">Costs</a></li>
