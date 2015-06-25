@@ -14,9 +14,13 @@ class Traffic extends Migration
     {
         Schema::create('traffic', function (Blueprint $table) {
             $table->increments('id');
-            $table->foreign('traffic_type_id')->references('id')->on('traffic_type');
+            $table->integer('traffic_type_id')->unsigned();
             $table->decimal('amount', 5, 2);
             $table->timestamp('created_at');
+        });
+
+        Schema::table('traffic', function($table) {
+            $table->foreign('traffic_type_id')->references('id')->on('traffic_type');
         });
     }
 
