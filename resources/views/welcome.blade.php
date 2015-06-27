@@ -21,38 +21,37 @@
         <![endif]-->
     </head>
     <body>
-        <!-- Static navbar -->
         <nav class="navbar navbar-inverse navbar-static-top" style="margin-bottom: 0;">
-          <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              @if ($balance >= 0)
-                <a class="navbar-brand" href="#">Balance: <span style="color: #5cb85c; font-size: 18px;">{{ $balance }}€</span></a>
-              @else
-                <a class="navbar-brand" href="#">Balance: <span style="color: #d9534f; font-size: 18px;">{{ $balance }}€</span></a>
-              @endif
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @if ($balance >= 0)
+                        <a class="navbar-brand" href="#">Balance: <span style="color: #5cb85c; font-size: 18px;">{{ $balance }}€</span></a>
+                    @else
+                        <a class="navbar-brand" href="#">Balance: <span style="color: #d9534f; font-size: 18px;">{{ $balance }}€</span></a>
+                    @endif
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="active"><a href="{{ URL::to('/') }}">All</a></li>
+                        <li><a href="{{ URL::to('/weekly') }}">Week</a></li>
+                        <li><a href="{{ URL::to('/monthly') }}">Month</a></li>
+                        <li><a href="{{ URL::to('/yearly') }}">Year<span class="sr-only">(current)</span></a></li>
+                    </ul>
+                </div>
             </div>
-            <div id="navbar" class="navbar-collapse collapse">
-              <ul class="nav navbar-nav navbar-right">
-                <li><a href="../navbar-fixed-top/">All</a></li>
-                <li><a href="../navbar/">Costs</a></li>
-                <li class="active"><a href="./">Profit<span class="sr-only">(current)</span></a></li>
-              </ul>
-            </div><!--/.nav-collapse -->
-          </div>
         </nav>
-
 
         <div class="container-fluid">
             @if (Session::has('message'))
-                <div class="bs-example bs-example-standalone" data-example-id="dismissible-alert-js">
-                    <div class="alert alert-warning alert-dismissible fade in" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="bs-example bs-example-standalone" data-example-id="dismissible-alert-js" style="text-align: center;">
+                    <div class="alert alert-warning alert-dismissible fade in" role="alert" style="margin: 10px 0 0 0; padding: 4px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="top: 0px; right: 0px;"><span aria-hidden="true">&times;</span></button>
                         <strong>Message: </strong> {{ Session::get('message') }}
                 </div>
             @endif
@@ -63,7 +62,12 @@
                             <h3 class="panel-title">Add profit</h3>
                         </div>
                         <div class="panel-body">
-                            <form class="form" action="add-profit" method="post">
+                            <div style="margin-bottom: 10px;">
+                                @foreach ($profit_traffic_types as $traffic_type)
+                                    <a href="#!" class="profit-quick-add"><span class="label label-primary">{{ $traffic_type->name }}</span></a>
+                                @endforeach
+                            </div>
+                            <form class="form" action="{{ URL::to('/add-profit') }}" method="post">
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
@@ -72,11 +76,25 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="input-group">
-                                        <div class="input-group-addon" style="min-width: 60px; max-width:60px;">$</div>
-                                        <input type="text" class="form-control" name="amount" placeholder="Amount">
+                                        <div class="input-group-addon" style="min-width: 60px; max-width:60px;">€</div>
+                                        <input type="number" class="form-control amount-profit" name="amount" placeholder="Amount">
                                     </div>
                                 </div>
-                                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group" style="margin-bottom: 15px;">
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">+1</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">+5</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">+10</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">+50</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">+100</button>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group" style="margin-bottom: 15px;">
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">-1</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">-5</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">-10</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">-50</button>
+                                    <button type="button" class="btn btn-default quick-amount-profit" style="width: 50px;">-100</button>
+                                </div>
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-success" style="width:100%;">Add</button>
                             </form>
                         </div>
@@ -88,7 +106,12 @@
                             <h3 class="panel-title">Add expense</h3>
                         </div>
                         <div class="panel-body">
-                            <form class="form" action="add-expense" method="post">
+                            <div style="margin-bottom: 10px;">
+                                @foreach ($expense_traffic_types as $traffic_type)
+                                    <a href="#!" class="expense-quick-add"><span class="label label-primary">{{ $traffic_type->name }}</span></a>
+                                @endforeach
+                            </div>
+                            <form class="form" action="{{ URL::to('/add-expense') }}" method="post">
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
@@ -97,11 +120,25 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="input-group">
-                                        <div class="input-group-addon" style="min-width: 60px; max-width:60px;">$</div>
-                                        <input type="text" class="form-control" name="amount" placeholder="Amount">
+                                        <div class="input-group-addon" style="min-width: 60px; max-width:60px;">€</div>
+                                        <input type="number" class="form-control amount-expense" name="amount" placeholder="Amount">
                                     </div>
                                 </div>
-                                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group" style="margin-bottom: 15px;">
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">+1</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">+5</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">+10</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">+50</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">+100</button>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group" style="margin-bottom: 15px;">
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">-1</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">-5</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">-10</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">-50</button>
+                                    <button type="button" class="btn btn-default quick-amount-expense" style="width: 50px;">-100</button>
+                                </div>
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-danger" style="width:100%;">Add</button>
                             </form>
                         </div>
@@ -125,16 +162,16 @@
                                 @if ($t->trafficType->is_cost == 1)
                                     <tr class="danger">
                                         <th>{{ $t->trafficType->name }}</th>
-                                        <td>{{ $t->created_at }}</td>
+                                        <td>{{ date("d.m.Y", strtotime($t->created_at)) }}</td>
                                         <td>{{ $t->amount }}</td>
-                                        <td><a href="remove-traffic/{{ $t->id }}">Delete</a></td>
+                                        <td><a href="{{ URL::to('/remove-traffic/$t->id') }}">Delete</a></td>
                                     </tr>
                                 @else
                                     <tr class="success">
                                         <th>{{ $t->trafficType->name }}</th>
-                                        <td>{{ $t->created_at }}</td>
+                                        <td>{{ date("d.m.Y", strtotime($t->created_at)) }}</td>
                                         <td>{{ $t->amount }}</td>
-                                        <td><a href="remove-traffic/{{ $t->id }}">Delete</a></td>
+                                        <td><a href="{{ URL::to('/remove-traffic/$t->id') }}">Delete</a></td>
                                     </tr>
                                 @endif
                             @endforeach
@@ -154,14 +191,52 @@
         <script src="{{ URL::asset('assets/js/bootstrap3-autocomplete.js') }}"></script>
 
         <script>
-            $.get("ajax/traffic-types-profit", function( data ) {
+            // Ajax request for traffic types for autocomplete
+            $.get("{{ URL::to('/ajax/traffic-types-profit') }}", function( data ) {
                 data = JSON.parse(data);
-                console.log(data);
                 $(".name-profit-ac").typeahead({ source: data });
             });
-            $.get("ajax/traffic-types-expense", function( data ) {
+            $.get("{{ URL::to('/ajax/traffic-types-expense') }}", function( data ) {
                 data = JSON.parse(data);
                 $(".name-expense-ac").typeahead({ source: data });
+            });
+
+            // Quick add for cost name
+            $(".profit-quick-add").click(function() {
+                $(".name-profit-ac").val($(this).text());
+            });
+            $(".expense-quick-add").click(function() {
+                $(".name-expense-ac").val($(this).text());
+            });
+
+            // Quick amount increase/decrease
+            $(".quick-amount-profit").click(function() {
+                var str = $(this).text();
+                var prefix = str.charAt(0);
+                var num = Number(str.slice(1, str.length));
+                var cur_val = $(".amount-profit").val();
+
+                if (cur_val == "") cur_val = 0;
+                else cur_val = Number(cur_val);
+
+                if (prefix == '+') cur_val += num;
+                if (prefix == '-') cur_val -= num;
+
+                $(".amount-profit").val(cur_val);
+            });
+            $(".quick-amount-expense").click(function() {
+                var str = $(this).text();
+                var prefix = str.charAt(0);
+                var num = Number(str.slice(1, str.length));
+                var cur_val = $(".amount-expense").val();
+
+                if (cur_val == "") cur_val = 0;
+                else cur_val = Number(cur_val);
+
+                if (prefix == '+') cur_val += num;
+                if (prefix == '-') cur_val -= num;
+
+                $(".amount-expense").val(cur_val);
             });
         </script>
     </body>
