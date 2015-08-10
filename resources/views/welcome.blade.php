@@ -77,7 +77,7 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">€</div>
-                                        <input type="number" class="form-control amount-profit" name="amount" placeholder="Amount">
+                                        <input type="number" step="any" class="form-control amount-profit" name="amount" placeholder="Amount">
                                     </div>
                                 </div>
                                 <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group" style="margin-bottom: 15px;">
@@ -121,7 +121,7 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">€</div>
-                                        <input type="number" class="form-control amount-expense" name="amount" placeholder="Amount">
+                                        <input type="number" step="any" class="form-control amount-expense" name="amount" placeholder="Amount">
                                     </div>
                                 </div>
                                 <div class="btn-group btn-group-sm" role="group" aria-label="Extra-small button group" style="margin-bottom: 15px;">
