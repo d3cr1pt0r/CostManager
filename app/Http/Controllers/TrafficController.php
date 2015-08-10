@@ -2,7 +2,10 @@
 
 namespace CostManager\Http\Controllers;
 
+use DateTime;
 use Input;
+use Hash;
+use DB;
 
 use CostManager\Http\Requests;
 use CostManager\Http\Controllers\Controller;
@@ -12,6 +15,12 @@ use CostManager\TrafficType;
 
 class TrafficController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth.basic');
+    }
+
     public function getIndex()
     {
         return $this->getTrafficData();
@@ -44,12 +53,13 @@ class TrafficController extends Controller
     public function postAddProfit()
     {
         $name = Input::get('name');
+        $desc = Input::get('desc');
         $amount = Input::get('amount');
 
         if (!is_numeric($amount))
             return redirect('/')->with('message', 'Wrong € amount format!');
 
-        $this->addTraffic($name, $amount, 0);
+        $this->addTraffic($name, $desc, $amount, 0);
 
         return redirect('/');
     }
@@ -57,14 +67,26 @@ class TrafficController extends Controller
     public function postAddExpense()
     {
         $name = Input::get('name');
+        $desc = Input::get('desc');
         $amount = Input::get('amount');
 
         if (!is_numeric($amount))
             return redirect('/')->with('message', 'Wrong € amount format!');
 
-        $this->addTraffic($name, $amount, 1);
+        $this->addTraffic($name, $desc, $amount, 1);
 
         return redirect('/');
+    }
+
+    public function postSetDateRange()
+    {
+        $date_start = Input::get('start');
+        $date_end = Input::get('end');
+
+        $from = DateTime::createFromFormat('d.m.Y', $date_start)->format('Y-m-d');
+        $to = DateTime::createFromFormat('d.m.Y', $date_end)->format('Y-m-d');
+
+        return $this->getTrafficData($from, $to);
     }
 
     public function getRemoveTraffic($id)
@@ -90,36 +112,30 @@ class TrafficController extends Controller
         $view = view('welcome');
 
         if ($date_from == null && $date_to == null) {
-            $traffic = Traffic::orderBy('created_at', 'desc')->get();
+            $view->traffic = Traffic::orderBy('created_at', 'desc')->get();
             $view->balance = $this->getProfit() + $this->getExpense();
         }
         else {
-            $traffic = Traffic::whereBetween('created_at', array($date_from, $date_to))->orderBy('created_at', 'desc')->get();
+            $view->traffic = Traffic::whereRaw('DATE(created_at) >= "'.$date_from.'"')->whereRaw('DATE(created_at) <= "'.$date_to.'"')->get();
             $view->balance = $this->getProfit($date_from, $date_to) + $this->getExpense($date_from, $date_to);
         }
         
         $traffic_types = TrafficType::all();
-
-        $view = view('welcome');
-        $view->traffic = $traffic;
-        $view->balance = $this->getProfit($date_from, $date_to) + $this->getExpense($date_from, $date_to);
         $view->profit_traffic_types = TrafficType::where('is_cost', 0)->orderBy('times_used', 'desc')->take(5)->get();
         $view->expense_traffic_types = TrafficType::where('is_cost', 1)->orderBy('times_used', 'desc')->take(5)->get();
 
         return $view;
     }
 
-    private function addTraffic($name, $amount, $is_cost)
+    private function addTraffic($name, $desc, $amount, $is_cost)
     {
-        $name = Input::get('name');
-        $amount = Input::get('amount');
-
-        $traffic_type = TrafficType::where('name', $name)->first();
+        $traffic_type = TrafficType::where('name', $name)->first(); // What the fuck was I thinking? :D
+        $traffic_type = null;
 
         if ($traffic_type == null) {
             $traffic_type = new TrafficType;
             $traffic_type->name = $name;
-            $traffic_type->desc = 'No desc';
+            $traffic_type->desc = $desc;
             $traffic_type->is_cost = $is_cost;
             $traffic_type->times_used = 0;
             $traffic_type->save();

@@ -13,6 +13,9 @@
         <!-- Optional theme -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
+        <!-- Bootstrap datepicker -->
+        <link rel="stylesheet" href="{{ URL::asset('assets/css/bootstrap-datepicker.css') }}">
+
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -36,14 +39,27 @@
                         <a class="navbar-brand" href="#">Balance: <span style="color: #d9534f; font-size: 18px;">{{ $balance }}€</span></a>
                     @endif
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <li class="active"><a href="{{ URL::to('/') }}">All</a></li>
-                        <li><a href="{{ URL::to('/weekly') }}">Week</a></li>
-                        <li><a href="{{ URL::to('/monthly') }}">Month</a></li>
-                        <li><a href="{{ URL::to('/yearly') }}">Year<span class="sr-only">(current)</span></a></li>
-                    </ul>
-                </div>
+                <form action="{{ URL::to('/set-date-range') }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li style="margin-top: 10px;">
+                                <div class="input-daterange input-group" id="datepicker">
+                                        <input type="text" class="input-sm form-control" name="start" style="width: 100px;" />
+                                        <span class="input-group-addon">to</span>
+                                        <input type="text" class="input-sm form-control" name="end" style="width: 100px;" />
+                                </div>
+                            </li>
+                            <li style="margin-left: 5px; margin-right: 5px;">
+                                <button class="btn btn-default" style="line-height: 16px; margin-top: 10px;">Show</button>
+                            </li>
+                            <li class="active"><a href="{{ URL::to('/') }}">All</a></li>
+                            <li><a href="{{ URL::to('/weekly') }}">Week</a></li>
+                            <li><a href="{{ URL::to('/monthly') }}">Month</a></li>
+                            <li><a href="{{ URL::to('/yearly') }}">Year<span class="sr-only">(current)</span></a></li>
+                        </ul>
+                    </div>
+                </form>
             </div>
         </nav>
 
@@ -72,6 +88,12 @@
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
                                         <input type="text" class="form-control name-profit-ac" name="name" data-provide="typeahead" autocomplete="off" placeholder="Payment, ...">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Desc</div>
+                                        <input type="text" class="form-control" name="desc" autocomplete="on" placeholder="Enter description here...">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -116,6 +138,12 @@
                                     <div class="input-group">
                                         <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
                                         <input type="text" class="form-control name-expense-ac" name="name" data-provide="typeahead" autocomplete="off" placeholder="Sticker foil, Gasoline, ...">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Desc</div>
+                                        <input type="text" class="form-control" name="desc" autocomplete="on" placeholder="Enter description here...">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -190,7 +218,16 @@
         <!-- Bootstrap 3 autocomplete -->
         <script src="{{ URL::asset('assets/js/bootstrap3-autocomplete.js') }}"></script>
 
+        <!-- Bootstrap 3 datepicker -->
+        <script src="{{ URL::asset('assets/js/bootstrap-datepicker.js') }}"></script>
+
         <script>
+            // Init datepicker
+            $('#navbar .input-daterange').datepicker({
+                format: "dd.mm.yyyy",
+                todayBtn: "linked"
+            });
+
             // Ajax request for traffic types for autocomplete
             $.get("{{ URL::to('/ajax/traffic-types-profit') }}", function( data ) {
                 data = JSON.parse(data);
