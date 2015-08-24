@@ -105,7 +105,9 @@ class TrafficController extends Controller
         if ($traffic == null)
             return redirect('/')->with('message', 'Model not found!');
 
+        $traffic_type = TrafficType::find($traffic->trafficType->id);
         $traffic->delete();
+        $traffic_type->delete();
 
         return redirect('/');
     }

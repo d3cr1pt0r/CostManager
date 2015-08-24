@@ -35,8 +35,6 @@ class TrafficHelper
     }
 
     public function getBalance($date_from=null, $date_to=null) {
-        if ($date_from == null && $date_to == null)
-            return $this->getProfit() + $this->getExpense();
         return $this->getProfit($date_from, $date_to) + $this->getExpense($date_from, $date_to);
     }
 
@@ -48,6 +46,11 @@ class TrafficHelper
             $traffic = Traffic::whereHas('TrafficType', function($q) {
                 $q->where('is_cost', 0);
             })->get();
+        }
+        elseif ($date_from == null && $date_to != null) {
+            $traffic = Traffic::whereHas('TrafficType', function($q) {
+                $q->where('is_cost', 0);
+            })->whereRaw('DATE(created_at) <= "'.$date_to.'"')->get();
         }
         else {
             $traffic = Traffic::whereHas('TrafficType', function($q) {
@@ -70,6 +73,11 @@ class TrafficHelper
             $traffic = Traffic::whereHas('TrafficType', function($q) {
                 $q->where('is_cost', 1);
             })->get();
+        }
+        elseif ($date_from == null && $date_to != null) {
+            $traffic = Traffic::whereHas('TrafficType', function($q) {
+                $q->where('is_cost', 1);
+            })->whereRaw('DATE(created_at) <= "'.$date_to.'"')->get();
         }
         else {
             $traffic = Traffic::whereHas('TrafficType', function($q) {

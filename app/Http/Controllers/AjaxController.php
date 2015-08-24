@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use CostManager\Http\Requests;
 use CostManager\Http\Controllers\Controller;
 use CostManager\TrafficType;
+use CostManager\Traffic;
 
+use Input;
 use DateTime;
 use TrafficHelper;
 
@@ -60,12 +62,30 @@ class AjaxController extends Controller
             $from = DateTime::createFromFormat('Y-m-d', $date)->format('Y-m-d');
             $to = DateTime::createFromFormat('Y-m-d', $date)->format('Y-m-d');
 
-            $chart_data_map[$date] = ["x" => $date, "y" => $traffic_helper->getBalance($from, $to)];
+            $chart_data_map[$date] = ["x" => $date, "y" => $traffic_helper->getBalance(null, $to)];
         }
         foreach($chart_data_map as $cdm) {
             $chart_data[] = $cdm;
         }
 
         return json_encode($chart_data);
+    }
+
+    public function postUpdateTraffic() {
+        $id = Input::get('traffic_id');
+        $name = Input::get('traffic_name');
+        $desc = Input::get('traffic_desc');
+        $amt = Input::get('traffic_amt');
+
+        $traffic_type = TrafficType::find($id);
+        $traffic_type->name = $name;
+        $traffic_type->desc = $desc;
+        $traffic_type->save();
+
+        $traffic = Traffic::find($traffic_type->traffic->id);
+        $traffic->amount = $amt;
+        $traffic->save();
+
+        return "OK";
     }
 }

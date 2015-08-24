@@ -193,24 +193,45 @@
                         </thead>
                         <tbody>
                             @foreach ($traffic as $t)
-                                @if ($t->trafficType->is_cost == 1)
-                                    <tr class="danger" data-container="body" data-toggle="popover" data-placement="top" data-content="{{ $t->trafficType->desc  }}">
-                                        <th>{{ $t->trafficType->name }}</th>
-                                        <td>{{ date("d.m.Y [H:m]", strtotime($t->created_at)) }}</td>
-                                        <td>{{ $t->amount }}</td>
-                                        <td><a href="{{ URL::to('/remove-traffic/'.$t->id) }}">Delete</a></td>
-                                    </tr>
-                                @else
-                                    <tr class="success" data-container="body" data-toggle="popover" data-placement="top" data-content="{{ $t->trafficType->desc  }}">
-                                        <th>{{ $t->trafficType->name }}</th>
-                                        <td>{{ date("d.m.Y [H:m]", strtotime($t->created_at)) }}</td>
-                                        <td>{{ $t->amount }}</td>
-                                        <td><a href="{{ URL::to('/remove-traffic/'.$t->id) }}">Delete</a></td>
-                                    </tr>
-                                @endif
+                                <tr class="{{ $t->trafficType->is_cost == 1 ? "danger" : "success"  }}" data-container="body" data-toggle="popover" data-placement="top" data-content="{{ $t->trafficType->desc  }}">
+                                    <th>{{ $t->trafficType->name }}</th>
+                                    <td>{{ date("d.m.Y [H:i]", strtotime($t->created_at)) }}</td>
+                                    <td>{{ $t->amount }}</td>
+                                    <td>
+                                        <a href="{{ URL::to('/remove-traffic/'.$t->id) }}" class="delete-entry">Delete</a>
+                                        <a href="#!" class="edit-entry" data-toggle="modal" data-target=".bs-example-modal-sm" traffic-id="{{ $t->trafficType->id }}" traffic-name="{{ $t->trafficType->name }}" traffic-desc="{{ $t->trafficType->desc }}" traffic-amt="{{ $t->amount }}">Edit</a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit modal -->
+        <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content" style="padding: 30px 20px 30px 20px;">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Name</div>
+                            <input type="text" class="form-control name-profit-ac" id="input-traffic-name" data-provide="typeahead" autocomplete="off" placeholder="Payment, ...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon" style="min-width: 60px; max-width:60px;">Desc</div>
+                            <input type="text" class="form-control"  id="input-traffic-desc" autocomplete="on" placeholder="Enter description here...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon" style="min-width: 60px; max-width:60px;">€</div>
+                            <input type="number" step="any" class="form-control amount-profit"  id="input-traffic-amt" placeholder="Amount">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" style="width:100%;" id="input-traffic-update">Update</button>
                 </div>
             </div>
         </div>
@@ -219,7 +240,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
         <!-- Canvas JS -->
-        <script src="http://localhost/CostManager/public/assets/js/canvasjs-1.7.0/jquery.canvasjs.min.js"></script>
+        <script src="{{ URL::asset('assets/js/canvasjs-1.7.0/jquery.canvasjs.min.js') }}"></script>
 
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
@@ -231,6 +252,11 @@
         <script src="{{ URL::asset('assets/js/bootstrap-datepicker.js') }}"></script>
 
         <script>
+            var traffic_id = null;
+            var traffic_name = null;
+            var traffic_desc = null;
+            var traffic_amt = null;
+
             // Init datepicker
             $('#navbar .input-daterange').datepicker({
                 format: "dd.mm.yyyy",
@@ -283,6 +309,40 @@
                 if (prefix == '-') cur_val -= num;
 
                 $(".amount-expense").val(cur_val);
+            });
+
+            // Prevent accidental entry removal
+            $(".delete-entry").click(function(e) {
+                if (!confirm("Do you really wish to delete?")) {
+                    e.preventDefault();
+                }
+            });
+
+            $(".edit-entry").click(function(e) {
+                //e.stopPropagation();
+                traffic_id = $(this).attr("traffic-id");
+                traffic_name = $(this).attr("traffic-name");
+                traffic_desc = $(this).attr("traffic-desc");
+                traffic_amt = $(this).attr("traffic-amt");
+
+                $("#input-traffic-name").val(traffic_name);
+                $("#input-traffic-desc").val(traffic_desc);
+                $("#input-traffic-amt").val(traffic_amt);
+            });
+
+            $("#input-traffic-update").click(function() {
+                traffic_name = $("#input-traffic-name").val();
+                traffic_desc = $("#input-traffic-desc").val();
+                traffic_amt = $("#input-traffic-amt").val();
+
+                $.post( "{{ URL::to('/ajax/update-traffic') }}", { traffic_id: traffic_id, traffic_name: traffic_name, traffic_desc: traffic_desc, traffic_amt: traffic_amt }).done(function( data ) {
+                    if (data == "OK") {
+                        location.reload();
+                    }
+                    else {
+                        alert("Failed to update!");
+                    }
+                });
             });
 
             $(".danger, .success").popover();
