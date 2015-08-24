@@ -20,7 +20,10 @@
         ],
         "psr-4": {
             "CostManager\\": "app/"
-        }
+        },
+        "files": [
+            "app/Helpers/TrafficHelper.php"
+        ]
     },
     "autoload-dev": {
         "classmap": [

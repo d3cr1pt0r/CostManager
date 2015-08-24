@@ -2,11 +2,13 @@
 
 namespace CostManager\Http\Controllers;
 
+use Illuminate\Support\Facades\Response;
+use Symfony\Component\CssSelector\Node\CombinedSelectorNode;
+use TrafficHelper;
 use DateTime;
 use Input;
 use Hash;
 use DB;
-
 use CostManager\Http\Requests;
 use CostManager\Http\Controllers\Controller;
 
@@ -24,6 +26,11 @@ class TrafficController extends Controller
     public function getIndex()
     {
         return $this->getTrafficData();
+    }
+
+    public function getChart() {
+        $view = view('chart');
+        return $view;
     }
 
     public function getWeekly()
@@ -59,7 +66,8 @@ class TrafficController extends Controller
         if (!is_numeric($amount))
             return redirect('/')->with('message', 'Wrong € amount format!');
 
-        $this->addTraffic($name, $desc, $amount, 0);
+        $traffic_helper = new TrafficHelper;
+        $traffic_helper->addTraffic($name, $desc, $amount, 0);
 
         return redirect('/');
     }
@@ -73,7 +81,8 @@ class TrafficController extends Controller
         if (!is_numeric($amount))
             return redirect('/')->with('message', 'Wrong € amount format!');
 
-        $this->addTraffic($name, $desc, $amount, 1);
+        $traffic_helper = new TrafficHelper;
+        $traffic_helper->addTraffic($name, $desc, $amount, 1);
 
         return redirect('/');
     }
@@ -108,89 +117,31 @@ class TrafficController extends Controller
 
     private function getTrafficData($date_from=null, $date_to=null)
     {
-        $traffic = null;
-        $view = view('welcome');
+        $traffic_helper = new TrafficHelper($date_from, $date_to);
 
-        if ($date_from == null && $date_to == null) {
-            $view->traffic = Traffic::orderBy('created_at', 'desc')->get();
-            $view->balance = $this->getProfit() + $this->getExpense();
-        }
-        else {
-            $view->traffic = Traffic::whereRaw('DATE(created_at) >= "'.$date_from.'"')->whereRaw('DATE(created_at) <= "'.$date_to.'"')->get();
-            $view->balance = $this->getProfit($date_from, $date_to) + $this->getExpense($date_from, $date_to);
-        }
-        
-        $traffic_types = TrafficType::all();
+        $view = view('welcome');
+        $view->traffic = $traffic_helper->getTraffic($date_from, $date_to);
+        $view->balance = $traffic_helper->getBalance($date_from, $date_to);
         $view->profit_traffic_types = TrafficType::where('is_cost', 0)->orderBy('times_used', 'desc')->take(5)->get();
         $view->expense_traffic_types = TrafficType::where('is_cost', 1)->orderBy('times_used', 'desc')->take(5)->get();
+        $view->chart_data = $this->getChartTrafficData($view->traffic);
 
         return $view;
     }
 
-    private function addTraffic($name, $desc, $amount, $is_cost)
-    {
-        $traffic_type = TrafficType::where('name', $name)->first(); // What the fuck was I thinking? :D
-        $traffic_type = null;
+    private function getChartTrafficData($traffic) {
+        $chart_data = [];
 
-        if ($traffic_type == null) {
-            $traffic_type = new TrafficType;
-            $traffic_type->name = $name;
-            $traffic_type->desc = $desc;
-            $traffic_type->is_cost = $is_cost;
-            $traffic_type->times_used = 0;
-            $traffic_type->save();
+        $balance = 0;
+        foreach($traffic as $t) {
+            $date = date("d/m/Y", strtotime($t->created_at));
+            $amount = $t->amount;
+            $balance += $amount;
+
+            $chart_data[] = ["x" => $date, "y" => $balance];
         }
 
-        $traffic_type->times_used += 1;
-        $traffic_type->save();
-
-        $traffic = new Traffic;
-        $traffic->amount = $amount;
-        $traffic->trafficType()->associate($traffic_type);
-        $traffic->save();
-    }
-
-    private function getProfit($date_from=null, $date_to=null)
-    {
-        $total = 0;
-
-        if ($date_from == null && $date_to == null) {
-            $traffic = Traffic::whereHas('TrafficType', function($q) {
-                $q->where('is_cost', 0);
-            })->get();
-        }
-        else {
-            $traffic = Traffic::whereHas('TrafficType', function($q) {
-                $q->where('is_cost', 0);
-            })->whereBetween('created_at', array($date_from, $date_to))->get();
-        }
-
-        foreach ($traffic as $t) {
-            $total += $t->amount;
-        }
-
-        return $total;
-    }
-
-    private function getExpense($date_from=null, $date_to=null)
-    {
-        $total = 0;
-
-        if ($date_from == null && $date_to == null) {
-            $traffic = Traffic::whereHas('TrafficType', function($q) {
-                $q->where('is_cost', 1);
-            })->get();
-        }
-        else {
-            $traffic = Traffic::whereHas('TrafficType', function($q) {
-                $q->where('is_cost', 1);
-            })->whereBetween('created_at', array($date_from, $date_to))->get();
-        }
-
-        foreach ($traffic as $t) {
-            $total -= $t->amount;
-        }
-
-        return $total;
+        return Response::json(array('chart_data' => json_encode($chart_data)));
+        return $chart_data;
     }
 }

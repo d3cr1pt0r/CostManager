@@ -176,6 +176,12 @@
 
             <div class="row">
                 <div class="col-md-12">
+                    @include('chart')
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
                     <table class="table table-condensed">
                         <thead>
                             <tr>
@@ -188,18 +194,18 @@
                         <tbody>
                             @foreach ($traffic as $t)
                                 @if ($t->trafficType->is_cost == 1)
-                                    <tr class="danger">
+                                    <tr class="danger" data-container="body" data-toggle="popover" data-placement="top" data-content="{{ $t->trafficType->desc  }}">
                                         <th>{{ $t->trafficType->name }}</th>
-                                        <td>{{ date("d.m.Y", strtotime($t->created_at)) }}</td>
+                                        <td>{{ date("d.m.Y [H:m]", strtotime($t->created_at)) }}</td>
                                         <td>{{ $t->amount }}</td>
-                                        <td><a href="{{ URL::to('/remove-traffic/$t->id') }}">Delete</a></td>
+                                        <td><a href="{{ URL::to('/remove-traffic/'.$t->id) }}">Delete</a></td>
                                     </tr>
                                 @else
-                                    <tr class="success">
+                                    <tr class="success" data-container="body" data-toggle="popover" data-placement="top" data-content="{{ $t->trafficType->desc  }}">
                                         <th>{{ $t->trafficType->name }}</th>
-                                        <td>{{ date("d.m.Y", strtotime($t->created_at)) }}</td>
+                                        <td>{{ date("d.m.Y [H:m]", strtotime($t->created_at)) }}</td>
                                         <td>{{ $t->amount }}</td>
-                                        <td><a href="{{ URL::to('/remove-traffic/$t->id') }}">Delete</a></td>
+                                        <td><a href="{{ URL::to('/remove-traffic/'.$t->id) }}">Delete</a></td>
                                     </tr>
                                 @endif
                             @endforeach
@@ -210,7 +216,10 @@
         </div>
 
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+        <!-- Canvas JS -->
+        <script src="http://localhost/CostManager/public/assets/js/canvasjs-1.7.0/jquery.canvasjs.min.js"></script>
 
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
@@ -275,6 +284,8 @@
 
                 $(".amount-expense").val(cur_val);
             });
+
+            $(".danger, .success").popover();
         </script>
     </body>
 </html>
